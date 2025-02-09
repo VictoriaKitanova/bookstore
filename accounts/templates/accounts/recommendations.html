@@ -1,0 +1,32 @@
+{% extends 'accounts/main.html' %}
+{% block content %}
+
+<div class="container my-5">
+    <h1 class="text-center mb-4">Recommended Books for You</h1>
+    
+    {% if recommended_books %}
+        <div class="row">
+            {% for book in recommended_books %}
+                <div class="col-md-4 mb-4">
+                    <div class="card">
+                        <img src="{{ book.image.url }}" class="card-img-top" alt="{{ book.title }}">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ book.title }}</h5>
+                            <p class="card-text">{{ book.description|truncatewords:20 }}</p>
+                            <p class="card-text"><strong>Author:</strong> {{ book.author }}</p>
+                            <p class="card-text"><strong>Price:</strong> {{ book.price }}$</p>
+                            <a href="{% url 'book' book.id %}" class="btn btn-secondary">View Details</a>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="alert alert-info text-center" role="alert">
+            No recommendations available at the moment.
+        </div>
+    {% endif %}
+</div>
+
+
+{% endblock %}

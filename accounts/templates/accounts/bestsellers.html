@@ -1,0 +1,61 @@
+{% extends 'accounts/main.html' %}
+{% load static %}
+
+{% block content %}
+
+<h1 class="text-center py-4">Bestselling books:</h1>
+</br>
+
+<div class="container-fluid">
+    {% for book in books|slice:"12:" %}
+    <div class="card mb-3 g-4">
+        <div class="row g-0">
+            <img class="img-fluid" src="{{ book.image.url }}" style="width: 230px; height: 320px;" alt="Responsive image">
+            <div class="col-md-8">
+                <div class="card-body">
+                    <h3 class="card-title">{{ book.title }}</h3>
+                    <h6>by {{ book.author }}</h6>
+                    <p class="card-text">{{ book.descreption }}</p>
+                        <h6>Price: ${{ book.price }}</h6>
+                    <button type="button" value="{{ book.id }}" class="btn btn-dark" id="add-cart" onclick="addBookToCart('{{ book.id }}')">Add to cart</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<script>
+    // Check if button pressed
+    function addBookToCart(book_id) {
+        $.ajax({
+            type: 'POST',
+            url: "{% url 'cart_add' %}",
+            data: {
+                book_id: book_id,
+                book_qty: 1,
+                //product_qty: $('#qty-cart option:selected').text(),
+                csrfmiddlewaretoken: '{{ csrf_token }}',
+                action: 'post'
+            },
+    
+            success: function(json){
+                console.log(json)
+                document.getElementById("cart_quantity").textContent = json.qty
+                location.reload();
+            },
+    
+            error: function(xhr, errmsg, err){
+    
+            }
+    
+    
+        });
+    
+    
+    
+    }
+    
+  </script>
+
+{% endblock %}

@@ -1,0 +1,77 @@
+{% extends 'accounts/main.html' %}
+{% block content %}
+
+<header class="bg-dark py-5">
+    <div class="container">
+        <div class="text-center text-white">
+            <h1 class="display-4">Processing order</h1>
+            <p class="lead text-white-25 mb-0">temporarty</p>
+        </div>
+    </div>
+</header>
+</br>
+<div class="container">
+    <div class="row">
+        <div class="col-md-6 offset-md-3 mx-auto">
+            <div class="card">
+                <div class="card-header">
+                    Order Summary
+                </div>
+                <div class="card-body">
+                    {% for book in cart_books %}
+                        {{ book.title }}:
+                            ${{ book.price }}
+
+                        </br>
+                        <small>Quantity:
+                        {% for key, value in quantities.items %}
+                            {% if key == book.id|slugify %}
+                                {{ value }}
+                            {% endif %}
+                        {% endfor %}</small>
+                        </br>
+
+                    {% endfor %}
+                    <strong>Total: ${{ totals }}</strong>
+                    </br></br>
+                    <a href="{% url 'cart_summary' %}" class="btn btn-sm btn-outline-secondary">Update books</a>
+
+                </div>
+            </div>
+            </br>
+            <div class="card">
+                <div class="card-header">
+                    Shipping Information
+                </div>
+                <div class="card-body">
+                    <strong>Name:</strong> {{ shipping_info.shipping_full_name }}</br>
+                    <strong>Email:</strong> {{ shipping_info.shipping_email }}</br>
+                    <strong>Address:</strong> {{ shipping_info.shipping_address1 }}</br>
+                    <strong>City:</strong> {{ shipping_info.shipping_city }}</br>
+                    <strong>Country:</strong> {{ shipping_info.shipping_country }}</br>
+                    </br>
+                    <a href="{% url 'checkout' %}" class="btn btn-outline-secondary">Update shipping</a>
+
+                </div>
+            </div>
+            </br></br>
+            <div class="card">
+                <div class="card-header">
+                    Billing Information
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="{% url 'process_order' %}">
+                        {% csrf_token %}
+                        {{ billing_form.as_p }}
+                </div>
+            </div>
+            </br>
+            <button type="submit" class="btn btn-secondary">Pay now</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+</br></br></br></br></br></br></br></br></br>
+
+{% endblock %}

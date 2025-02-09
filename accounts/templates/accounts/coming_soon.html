@@ -1,0 +1,61 @@
+{% extends 'accounts/main.html' %}
+{% load static %}
+
+{% block content %}
+
+<h1 class="text-center py-4">Our Most Anticipated Books:</h1>
+<br><br>
+<div class="container-fluid">
+    <div class="row row-cols-1 row-cols-md-2 g-4 col-md-9 m-auto">
+        {% for book in books|slice:"9:11" %}
+        <div class="col">
+            <div class="card">
+                <img src="{{ book.image.url }}" class="img-fluid" alt="Responsive image">
+                <div class="card-body">
+                    <h5 class="card-title">{{ book.title }}</h5>
+                    <p class="card-text">Written by {{ book.author }}</p>
+                    <p class="card-text">This item will be released on {{ book.publication }}</p>
+                    <h6>Price: ${{ book.price }}</h6>
+                    <a href="{% url 'book' book.id %}" class="btn btn-secondary">Read more</a>
+                    <button type="button" value="{{ book.id }}" class="btn btn-dark" id="add-cart" onclick="addBookToCart('{{ book.id }}')">Pre-order</button>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+    
+<script>
+    // Check if button pressed
+    function addBookToCart(book_id) {
+        $.ajax({
+            type: 'POST',
+            url: "{% url 'cart_add' %}",
+            data: {
+                book_id: book_id,
+                book_qty: 1,
+                //product_qty: $('#qty-cart option:selected').text(),
+                csrfmiddlewaretoken: '{{ csrf_token }}',
+                action: 'post'
+            },
+    
+            success: function(json){
+                console.log(json)
+                document.getElementById("cart_quantity").textContent = json.qty
+                location.reload();
+            },
+    
+            error: function(xhr, errmsg, err){
+    
+            }
+    
+    
+        });
+    
+    
+    
+    }
+    
+  </script>
+
+{% endblock %}

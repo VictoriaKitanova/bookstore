@@ -1,0 +1,148 @@
+{% extends 'accounts/main.html' %}
+{% block content %}
+
+<header class="bg-dark py-5">
+    <div class="container">
+        <div class="text-center text-white">
+            <h1 class="display-4">Shopping cart</h1>
+            <p class="lead text-white-25 mb-0">View your shopping cart</p>
+        </div>
+    </div>
+</header>
+</br>
+<div class="container"> 
+    {% if cart_books %}
+        {% for book in cart_books %}
+        </br>
+        <div class="card">
+            <div class="row g-0">
+                <div class="col-md-4">
+                    <img src="{{ book.image.url }}" style="width: 330px; height: 490px;" class="img-fluid" alt="Responsive image">
+                </div>
+                <div class="col-md-8">
+                    <div class="card-body">
+                        <h3 class="card-title">{{ book.title }}</h3>
+                        <h5 class="card-text-bold">by {{ book.author }}</h5>
+                        </br>
+                        <p class="card-text">{{ book.descreption }}</p>
+                        </br>
+                        <div class="tags">
+                            {% for tag in book.tags.all %}
+                                <span class="badge bg-secondary text-white">{{ tag.name }}</span>
+                            {% endfor %}
+                        </div>
+                        </br>
+                        <p class="card-text">{{ book.pages }} pages, {{ book.cover }}</p>
+                        <p class="card-text">First published: {{ book.publication }}</p>
+                        <h6 class="card-text-bold">Price: ${{ book.price }}</h6>
+                        <div class="row">
+                            <div class="col-md-2" >Quantity:</div>
+                            <select class="form-select" id="select{{ book.id }}">
+                                <option selected>
+                                    {% for key, value in quantities.items %}
+                                        {% if key == book.id|slugify %}
+                                            {{ value }}
+                                        {% endif %}
+                                    {% endfor %}
+                                </option>
+                                <option value="1">1</option>
+                                <option value="2">2</option>
+                                <option value="3">3</option>
+                                <option value="4">4</option>
+                                <option value="5">5</option>
+                            </select>
+                        </div>
+                    </div>
+                    <a href="{% url 'home' %}" class="btn btn-secondary">Home page</a>
+                    <button type="button" data-index="{{ book.id }}" class="btn btn-secondary update-cart">Update</button>
+                    <button type="button" data-index="{{ book.id }}" class="btn btn-danger delete-book">Remove</button>
+                </div>
+            </div>
+            </br>
+        </div>
+    
+
+        {% endfor %}
+        </br></br>
+        <div style="text-align: right;">
+            <h3>Total: ${{ totals }}</h3>
+            <a href="{% url 'checkout' %}" class="btn btn-secondary">Checkout</a>
+        </div>
+        </br></br></br>
+        {% else %}
+        </br></br></br>
+        <div class="container">
+            <div class="text-center text-dark">
+                <h4 class="display-4">There is nothing in your cart</h4>
+            </div>
+        </div>
+    </br></br></br></br></br></br></br></br></br>
+    {% endif %}
+    </br>
+</div>
+
+
+</br></br></br></br></br></br></br></br></br>
+
+<script>
+    // Update cart
+    $(document).on('click', '.update-cart', function(e){
+        e.preventDefault();
+        var bookid = $(this).data('index')
+        $.ajax({
+            type: 'POST',
+            url: "{% url 'cart_update' %}",
+            data: {
+                book_id: $(this).data('index'),
+                book_qty: $('#select' + bookid + ' option:selected').text(),
+                csrfmiddlewaretoken: '{{ csrf_token }}',
+                action: 'post'
+            },
+    
+            success: function(json){
+                //console.log(json)
+                //document.getElementById("cart_quantity").textContent = json.qty
+                location.reload();
+            },
+    
+            error: function(xhr, errmsg, err){
+    
+            }
+    
+        });
+    
+    })
+    
+</script>
+
+
+<script>
+    // Delete books from cart
+    $(document).on('click', '.delete-book', function(e){
+        e.preventDefault();
+        $.ajax({
+            type: 'POST',
+            url: "{% url 'cart_delete' %}",
+            data: {
+                book_id: $(this).data('index'),
+                csrfmiddlewaretoken: '{{ csrf_token }}',
+                action: 'post'
+            },
+    
+            success: function(json){
+                //console.log(json)
+                //document.getElementById("cart_quantity").textContent = json.qty
+                location.reload();
+            },
+    
+            error: function(xhr, errmsg, err){
+    
+            }
+    
+        });
+    
+    })
+    
+</script>
+
+{% endblock %}

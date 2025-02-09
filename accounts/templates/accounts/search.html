@@ -1,0 +1,39 @@
+{% extends 'accounts/main.html' %}
+{% load static %}
+
+{% block content %}
+
+</br></br> 
+<div class="container-fluid">
+    <div class="row row-cols-xl-3 m-auto col-md-11">
+        {% if searched_books %}
+            {% for book in searched_books %}
+            <div class="col">
+                <div class="card" style="width: 18rem;">
+                    <img src="{{ book.image.url }}" class="img-fluid" alt="Responsive image">
+                    <div class="card-body">
+                        <h6 class="card-title">
+                            <a href="{% url 'book' book.id %}">
+                                {{ book }} </br>
+                            </a>
+                        </h6>
+                        <p class="card-text">by {{ book.author }}</p>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+    </br></br></br></br>
+    <div class="container">
+        <div class="text-center text-dark ">
+            </br></br></br>
+            <h4 class="display-4">Sorry! There is no book with this name!</h4>
+        </div>
+    </div>
+    </br></br></br></br></br></br></br></br></br>
+        {% endif %}
+    </div>
+</div>
+</br></br></br></br>
+{% endblock %}
+

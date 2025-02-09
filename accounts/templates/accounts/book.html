@@ -1,0 +1,215 @@
+{% extends 'accounts/main.html' %}
+{% block content %}
+
+<div class="container">
+    </br>
+    <div class="card mb-3">
+        <div class="row g-0">
+            <div class="col-md-4">
+                <img src="{{ book.image.url }}" class="img-fluid" alt="Responsive image">
+            </div>
+            <div class="col-md-8">
+                <div class="card-body">
+                    <h3 class="card-title">{{ book.title }}</h3>
+                    <h5 class="card-text-bold">by {{ book.author }}</h5>
+                    </br>
+                    <p class="card-text">{{ book.descreption }}</p>
+                    </br>
+                    <div class="tags">
+                        {% for tag in book.tags.all %}
+                            <span class="badge bg-secondary text-white">{{ tag.name }}</span>
+                        {% endfor %}
+                    </div>
+                    </br>
+                    <p class="card-text">{{ book.pages }} pages, {{ book.cover }}</p>
+                    <p class="card-text">First published: {{ book.publication }}</p>
+                    <h6 class="card-text-bold">Price: ${{ book.price }}</h6>
+                    
+                    <div class="row align-items-center">
+                        <div class="col-md-2">Quantity:</div>
+                        <div class="col-md-2">
+                            <select class="form-select w-75" id="qty-cart">
+                                <option value="1">1</option>
+                                <option value="2">2</option>
+                                <option value="3">3</option>
+                                <option value="4">4</option>
+                                <option value="5">5</option>
+                            </select>
+                        </div>
+                    
+                        <div class="col-md-4 ml-1">
+                            <button type="button" value="{{ book.id }}" class="btn btn-dark" id="add-cart">Add to cart</button>
+                        </div>
+                    </div>
+                    
+                    
+                    <hr>
+
+                    <h3 class="card-text">Reviews</h3>
+                    <hr>
+                    <div class="container reviews">
+                        {% for review in book.reviews.all %}
+                            <div class="container">
+                                <p>
+                                    <strong>Date: </strong>{{ review.data_created|date:"Y-m-d"}},
+                                    <strong>Stars: </strong>{{ review.stars }},
+                                    <strong>By:</strong> {{ review.user.username }}
+                                </p>
+                                {{ review.content }}
+                                <hr>
+                            </div>
+                        {% empty %}
+                            <div class="container" style="background-color: rgb(232, 227, 227); padding: 20px;">
+                                No reviews yet
+                            </div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="container">
+                        {% if request.user.is_authenticated %} 
+                            <h5 class="card-text">Leave your review: </h5>
+                            <form method="POST" action="{% url 'book_review' pk=book.id %}"> 
+                                {% csrf_token %}
+                                <div class="container" style="background-color: rgb(232, 227, 227); padding: 20px;">
+                                    <!-- Stars field -->
+                                    <div class="field">
+                                        <label>Stars</label>
+                                        <div class="control">
+                                            <div class="select">
+                                                <select name="stars">
+                                                    <option value="1">1</option>
+                                                    <option value="2">2</option>
+                                                    <option value="3" selected>3</option>
+                                                    <option value="4">4</option>
+                                                    <option value="5">5</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                
+                                    <!-- Content field -->
+                                    <div class="field">
+                                        <label>Content</label>
+                                        <div class="control">
+                                            <textarea class="textarea" name="content"></textarea>
+                                        </div>
+                                    </div>
+                                
+                                    <!-- Submit button -->
+                                    <div class="field">
+                                        <div class="control">
+                                            <button class="button btn-secondary post-review">Submit</button>
+                                        </div>
+                                    </div>
+                                </div>                                
+                            </form>
+                        {% else %}
+                        </br>
+                        <div class="container" style="background-color: rgb(232, 227, 227); padding: 20px;">
+                            Please sign in to add review!
+                        </div>
+                        {% endif %}
+                    </div>
+                    <hr>
+                    <a href="{% url 'home' %}" class="btn btn-secondary">Home page</a>
+                    
+                </br></br>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+
+</div>
+</br>
+</br>
+</br>
+
+<script>
+    // Check if button pressed
+    $(document).on('click', '#add-cart', function(e){
+        e.preventDefault();
+        $.ajax({
+            type: 'POST',
+            url: "{% url 'cart_add' %}",
+            data: {
+                book_id: '{{ book.id }}',
+                book_qty: $('#qty-cart option:selected').text(),
+                csrfmiddlewaretoken: '{{ csrf_token }}',
+                action: 'post'
+            },
+    
+            success: function(json){
+                //console.log(json)
+                document.getElementById("cart_quantity").textContent = json.qty
+                location.reload();
+            },
+    
+            error: function(xhr, errmsg, err){
+    
+            }
+    
+    
+        });
+    
+    
+    
+    })
+    
+</script>
+
+<script>
+    // Update a review for a book
+    $(document).on('click', '.post-review', function(e){
+        e.preventDefault();
+
+        var bookId = window.location.pathname.split('/')[2]; 
+        var stars = $('select[name="stars"]').val();
+        var content = $('textarea[name="content"]').val();
+
+        $.ajax({
+            type: 'POST',
+            url: '/book/' + bookId + '/review/', 
+            data: {
+                stars: stars,
+                content: content,
+                csrfmiddlewaretoken: '{{ csrf_token }}',
+                action: 'post'
+            },
+    
+            success: function(json) {
+                // Log the response for debugging
+                console.log('Success response:', json);
+
+                if (json.message) {
+                    // Review submitted successfully, now dynamically add it to the page
+                    var newReviewHTML = `
+                        <div class="container">
+                            <p>
+                                <strong>Date: </strong>${json.date_created},
+                                <strong>Stars: </strong>${json.stars}
+                            </p>
+                            <p>${json.content}</p>
+                            <p><strong>By:</strong> ${json.user}</p>
+                        </div>
+                    `;
+
+                    // Append the new review to the existing reviews container
+                    $('.container.reviews').prepend(newReviewHTML);
+                    $('select[name="stars"]').val('');
+                    $('textarea[name="content"]').val('');
+
+                }
+            },
+    
+            error: function(xhr, errmsg, err){
+                console.log('Error response:', xhr.responseText);
+            }
+    
+        });
+    
+    })
+    
+</script>
+
+{% endblock %}

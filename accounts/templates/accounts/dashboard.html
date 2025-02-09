@@ -1,0 +1,71 @@
+{% extends 'accounts/main.html' %}
+{% load static %}
+
+{% block content %}
+
+<h1 class="text-center py-4">Welcome to Books & Buddies</h1>
+  
+  <figure class="text-center">
+    <blockquote class="blockquote">
+      <p>"With freedom, books, flowers and the moon, who could not be happy"</p>
+    </blockquote>
+    <figcaption class="blockquote-footer">
+      <cite title="Source Title">Oscar Wilde</cite>
+    </figcaption>
+  </figure>
+  
+<br><br>
+<div class="container-fluid">
+  <div class="row row-cols-xl-3 m-auto col-md-11">
+    {% for book in books|slice:":9" %}
+    <div class="col">
+        <div class="card" style="width: 18rem;">
+            <img src="{{ book.image.url }}" class="card-img-top" style="width: 287px; height: 410px;">
+            <div class="card-body">
+              <h5 class="card-title">{{ book.title }}</h5>
+              <p class="card-text">Written by {{ book.author }}, first published {{ book.publication }}, {{ book.pages }} pages, {{book.cover}}</p>
+              <h6>Price: ${{book.price}}</h6>
+              <a href="{% url 'book' book.id %}" class="btn btn-secondary">Read more</a>
+              <hr/>
+              <button type="button" value="{{ book.id }}" class="btn btn-dark" id="add-cart" onclick="addBookToCart('{{ book.id }}')">Add one copy to cart</button>
+            </div>
+        </div>
+        <br/>
+    </div>
+    {% endfor %} 
+  </div>
+</div>
+
+<script>
+  // Check if button pressed
+  function addBookToCart(book_id) {
+      $.ajax({
+          type: 'POST',
+          url: "{% url 'cart_add' %}",
+          data: {
+              book_id: book_id,
+              book_qty: 1,
+              csrfmiddlewaretoken: '{{ csrf_token }}',
+              action: 'post'
+          },
+  
+          success: function(json){
+              console.log(json)
+              document.getElementById("cart_quantity").textContent = json.qty
+              location.reload();
+          },
+  
+          error: function(xhr, errmsg, err){
+  
+          }
+  
+  
+      });
+  
+  
+  
+  }
+  
+</script>
+
+{% endblock %}

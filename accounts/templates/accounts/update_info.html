@@ -1,0 +1,42 @@
+{% extends 'accounts/main.html' %}
+{% block content %}
+
+<header class="bg-dark py-5">
+    <div class="container">
+        <div class="text-center text-white">
+            <h1 class="display-4">Update user information</h1>
+            <p class="lead text-white-25 mb-0">Update your user information</p>
+        </div>
+    </div>
+</header>
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-6 offset-md-3 mx-auto">
+            <div class="text">
+                <br/><br/>
+                <strong>Billing Information</strong>
+                <br/><br/>
+                <form method="POST" action="{% url 'update_info' %}">
+                    {% csrf_token %}
+                    
+                    {{ form.as_p }}
+                    <br/><br/>
+                    <strong>Shipping Information</strong>
+                    <br></br>
+                    {{ shipping_form.as_p }}
+                    <br/><br/>
+                    <button type="submit" class="btn btn-secondary">
+                        Update Information
+                    </button>
+
+                </form>
+            </div>
+
+            <br /><br />
+        </div>
+    </div>
+</div>
+
+
+{% endblock %}
